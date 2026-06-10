@@ -1,12 +1,18 @@
-# LECCIÓN 2 MATEMÁTICAS - Juego Interactivo de Admisión Universitaria
+# Simulador De Admisión Universitaria - Repositorio GitHub
 
-Aplicación web gamificada interactiva, responsiva y diseñada bajo estándares de accesibilidad para la preparación en matemática avanzada requerida para los exámenes de admisión de educación superior.
+Este repositorio contiene los 4 archivos estructurados para desplegar de forma autónoma la plataforma interactiva de simulacros para el examen de admisión de Matemáticas.
 
-## Características Técnicas
-- **Enfoque modular y único**: Disponible como archivo único standalone compilado en `index.html` o estructurado en tres capas independientes (`index.css`, `index.js`).
-- **Comodines Integrados**: Sistema lógico dinámico para 50/50, eliminación aleatoria ponderada, simulación probabilística de llamada a experto y renderizado dinámico de estadísticas del público mediante barras de porcentaje nativas.
-- **Navegación Teclado Fluida**: Compatible con foco secuencial vía TAB y activación inequívoca mediante Enter.
+## Archivos Incluidos:
+1. `index.html` - Estructura semántica de la interfaz de usuario.
+2. `index.css` - Hoja de estilos moderna y responsiva con paleta oscura y animaciones dinámicas.
+3. `index.js` - Motor lógico ejecutable: barajado aleatorio, control de comodines y temporizador general de 60 minutos (90s por reactivo).
+4. `README.md` - Documentación del proyecto.
 
-## Implementación en Servidores / Hosting
-1. Subir los archivos `index.html`, `index.css` e `index.js` a tu repositorio de GitHub Pages.
-2. Inserte el código embebido directamente en plataformas externas como Canvas o Moodle usando iframes o el código consolidado de archivo único.
+## Temas Evaluados (40 Preguntas en total):
+- Intervalos y operaciones de conjuntos reales.
+- Ecuaciones lineales, cuadráticas y con Valor Absoluto.
+- Inecuaciones con Valor Absoluto.
+- Análisis de Funciones reales (vértices, cortes, dominios y rangos).
+- Identidades Trigonométricas fundamentales y simplificaciones.
+- Álgebra Vectorial en el plano.
+- Límites de funciones racionales y al infinito.
