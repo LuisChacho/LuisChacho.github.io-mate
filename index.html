@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LECCIÓN 2 MATEMÁTICAS - Juego Interactivo</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 850px;
+            background: #1e293b;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 30px;
+            border: 2px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Inicio Screen */
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--accent);
+            text-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--white);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* HUD Panels */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+        }
+
+        .score-box {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .category-badge {
+            background: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-box {
+            font-size: 1rem;
+            color: #94a3b8;
+        }
+
+        /* Comodines Layout */
+        .lifelines {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .lifeline-btn {
+            background: #334155;
+            color: var(--white);
+            border: 1px solid #475569;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lifeline-btn:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--dark);
+            border-color: var(--accent);
+        }
+
+        /* Pregunta */
+        .question-box {
+            background: #1e293b;
+            padding: 20px;
+            border-left: 5px solid var(--primary-light);
+            margin-bottom: 25px;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: var(--white);
+        }
+
+        /* Opciones */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .lifelines {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .option-btn {
+            background: #1e293b;
+            color: var(--light);
+            border: 2px solid #475569;
+            padding: 18px 20px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-light);
+            background: #1e3a8a33;
+        }
+
+        .option-btn:focus {
+            outline: 3px solid var(--accent);
+        }
+
+        .option-btn.hidden-option {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option-btn.correct {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--secondary) !important;
+            color: #34d399 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--danger) !important;
+            color: #f87171 !important;
+        }
+
+        .prefix {
+            font-weight: bold;
+            color: var(--accent);
+            margin-right: 12px;
+            font-size: 1.15rem;
+        }
+
+        /* Modal / Feedback Modals Internos */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.85);
+            border-top: 2px solid #334155;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .feedback-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .feedback-title.success { color: var(--secondary); }
+        .feedback-title.fail { color: var(--danger); }
+
+        .explanation {
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Panel Comodines Interactivos */
+        .lifeline-display {
+            background: #334155;
+            border: 1px dashed var(--accent);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .lifeline-display.active {
+            display: block;
+        }
+
+        .lifeline-display h4 {
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        /* Gráfico público simple */
+        .poll-container {
+            margin-top: 10px;
+        }
+        .poll-bar-wrapper {
+            margin-bottom: 8px;
+        }
+        .poll-label {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .poll-bar {
+            background: #475569;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .poll-fill {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Final Screen */
+        .end-screen {
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            color: var(--secondary);
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <!-- PANTALLA DE INICIO -->
+        <div id="start-screen" class="screen active start-screen">
+            <h1>MATEMÁTICA</h1>
+            <p class="subtitle">LECCIÓN 2 MATEMÁTICAS</p>
+            <p style="margin-bottom: 30px; color: #94a3b8; max-width: 500px; margin-left: auto; margin-right: auto;">
+                ¡Bienvenido al desafío definitivo de admisión universitaria! Pon a prueba tus conocimientos en intervalos, funciones, identidades, límites, vectores y valor absoluto. 50 preguntas te separan del éxito. ¡A jugar!
+            </p>
+            <button id="btn-play" class="btn" onclick="startGame()">¡Jugar ahora!</button>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div id="game-screen" class="screen">
+            
+            <!-- HUD Superior -->
+            <div class="hud">
+                <div class="progress-box">Pregunta: <span id="current-q-num">1</span> / 50</div>
+                <div id="category-badge" class="category-badge">Intervalos</div>
+                <div class="score-box">Premios: <span id="score-val">0</span> PTS</div>
+            </div>
+
+            <!-- Panel de Comodines -->
+            <div class="lifelines">
+                <button id="ll-5050" class="lifeline-btn" onclick="use5050()">Comodín 50/50</button>
+                <button id="ll-remove" class="lifeline-btn" onclick="useRemoveOne()">Eliminar 1</button>
+                <button id="ll-phone" class="lifeline-btn" onclick="usePhone()">Llamar Amigo</button>
+                <button id="ll-public" class="lifeline-btn" onclick="usePublic()">Ayuda Público</button>
+            </div>
+
+            <!-- Pantalla informativa de comodines temporales -->
+            <div id="lifeline-display" class="lifeline-display">
+                <!-- Contenido dinámico del comodín -->
+            </div>
+
+            <!-- Caja de Pregunta -->
+            <div id="question-box" class="question-box">
+                Cargando pregunta...
+            </div>
+
+            <!-- Cuadrícula de Opciones -->
+            <div class="options-grid">
+                <button class="option-btn" id="opt-A" onclick="selectOption('A')"><span class="prefix">A</span><span class="text" id="text-A"></span></button>
+                <button class="option-btn" id="opt-B" onclick="selectOption('B')"><span class="prefix">B</span><span class="text" id="text-B"></span></button>
+                <button class="option-btn" id="opt-C" onclick="selectOption('C')"><span class="prefix">C</span><span class="text" id="text-C"></span></button>
+                <button class="option-btn" id="opt-D" onclick="selectOption('D')"><span class="prefix">D</span><span class="text" id="text-D"></span></button>
+            </div>
+
+            <!-- Feedback Modal -->
+            <div id="feedback-panel" class="modal-overlay">
+                <div id="feedback-title" class="feedback-title">¡Correcto!</div>
+                <div id="explanation-box" class="explanation">Esta es la explicación analítica.</div>
+                <div style="text-align: right;">
+                    <button id="btn-next" class="btn" onclick="nextQuestion()">Siguiente Pregunta</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PANTALLA FINAL -->
+        <div id="end-screen" class="screen end-screen">
+            <h1>¡FIN DEL JUEGO!</h1>
+            <p class="subtitle" id="end-message">¡Gran esfuerzo en el plató de matemáticas!</p>
+            <div>Puntaje Acumulado Total:</div>
+            <div id="final-score-val" class="final-score">0</div>
+            <p style="margin-bottom: 30px; color: #94a3b8;" id="performance-comment">¡Listo para arrasar en el examen de ingreso universitario!</p>
+            <button class="btn" onclick="restartGame()">Volver a Jugar</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Banco de datos con exactamente 50 preguntas distribuidas uniformemente en los temas requeridos
+        const questions = [
+            // CATEGORÍA: Intervalos (1-7)
+            {
+                categoria: "Intervalos",
+                pregunta: "Si A = (-2, 5] y B = [3, 8), ¿cuál es el resultado de la intersección A ∩ B?",
+                opciones: { A: "[3, 5]", B: "(3, 5]", C: "[-2, 8)", D: "(3, 5)" },
+                correcta: "A",
+                explicacion: "La intersección incluye los números que pertenecen a ambos intervalos. El 3 está en ambos, y el 5 también está incluido en ambos."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Sean los intervalos M = [-5, 2) y N = (0, 6]. Determina la unión M ∪ N.",
+                opciones: { A: "[-5, 6]", B: "(-5, 6]", C: "[-5, 6)", D: "(0, 2)" },
+                correcta: "A",
+                explicacion: "La unión agrupa todos los elementos desde el extremo inferior del primer intervalo estructurado hasta el extremo superior del segundo, cubriendo [-5, 6]."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Dado el conjunto universal U = ℝ. Si un intervalo es C = [1, +∞), ¿cuál es su complemento C'?",
+                opciones: { A: "(-∞, 1)", B: "(-∞, 1]", C: "(1, +∞)", D: "[-1, 1]" },
+                correcta: "A",
+                explicacion: "El complemento de un conjunto son todos los elementos que no pertenecen a él. Como C incluye al 1, su complemento debe ser estrictamente menor que 1."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Si representamos los intervalos P = [-3, 4] y Q = (1, 5), calcula la diferencia P - Q.",
+                opciones: { A: "[-3, 1]", B: "[-3, 1)", C: "[-3, 4]", D: "(4, 5)" },
+                correcta: "A",
+                explicacion: "La diferencia P - Q consiste en quitarle a P los elementos compartidos con Q. Como Q empieza justo después de 1, el valor 1 permanece en P."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Un granjero delimita un terreno lineal. La zona permitida A va de los metros 10 al 40 inclusive [10, 40]. La zona B va de los metros 25 al 50 inclusive [25, 50]. ¿Qué tramo de terreno corresponde a la diferencia simétrica (A Δ B)?",
+                opciones: { A: "[10, 25) ∪ (40, 50]", B: "[10, 25] ∪ [40, 50]", C: "(25, 40)", D: "[10, 50]" },
+                correcta: "A",
+                explicacion: "La diferencia simétrica son los elementos que están en A o en B pero no en ambos. Excluye la intersección [25, 40]."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Dados los intervalos representativos X = (-∞, 3] e Y = [-1, +∞). ¿Qué conjunto numérico representa X ∩ Y?",
+                opciones: { A: "[-1, 3]", B: "(-1, 3)", C: "(-∞, +∞)", D: "[-1, 3)" },
+                correcta: "A",
+                explicacion: "Los valores en común van desde -1 inclusive hasta 3 inclusive, formando el intervalo cerrado compacto [-1, 3]."
+            },
+            {
+                categoria: "Intervalos",
+                pregunta: "Si el conjunto A = (-4, 0] y el conjunto B = (-2, 2). Calcule la diferencia B - A.",
+                opciones: { A: "(0, 2)", B: "[0, 2)", C: "(-2, 0]", D: "(-4, -2]" },
+                correcta: "A",
+                explicacion: "A B le retiramos la parte común con A (que llega hasta el 0 inclusive). Por lo tanto, nos queda el intervalo abierto desde 0 hasta 2."
+            },
+
+            // CATEGORÍA: Ecuaciones con Valor Absoluto (8-14)
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Resuelve la ecuación analítica: |2x - 3| = 7.",
+                opciones: { A: "x = 5 y x = -2", B: "x = 5 y x = 2", C: "x = -5 y x = 2", D: "x = 4 y x = -1" },
+                correcta: "A",
+                explicacion: "Planteamos dos opciones: 2x - 3 = 7 (da x = 5) y 2x - 3 = -7 (da 2x = -4, de donde x = -2)."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Encuentra el conjunto solución para la expresión matemática: |x + 5| = 0.",
+                opciones: { A: "{-5}", B: "{5, -5}", C: "{0}", D: "No tiene solución" },
+                correcta: "A",
+                explicacion: "El valor absoluto de una expresión es igual a cero si y solo si la propia expresión interna es igual a cero, por ende x + 5 = 0."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "¿Cuál es la solución real para la ecuación lineal: |3x - 1| = -4?",
+                opciones: { A: "No tiene solución en ℝ", B: "x = -1", C: "x = 5/3", D: "x = 1 y x = -1" },
+                correcta: "A",
+                explicacion: "Por definición fundamental, la distancia o valor absoluto de cualquier número real nunca puede resultar en un valor negativo."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Resuelve la ecuación algebraica con doble valor absoluto: |x - 2| = |2x + 1|.",
+                opciones: { A: "x = 1/3 y x = -3", B: "x = -1/3 y x = 3", C: "x = 1/3 y x = 3", D: "x = -1/3 y x = -3" },
+                correcta: "A",
+                explicacion: "Se igualan directamente: x - 2 = 2x + 1 → x = -3; o con signo opuesto: x - 2 = -(2x + 1) → 3x = 1 → x = 1/3."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Un sensor de control de calidad mide el diámetro estándar. La desviación está dada por |d - 5| = 0.02 mm. ¿Cuáles son los diámetros límites?",
+                opciones: { A: "4.98 mm y 5.02 mm", B: "4.90 mm y 5.10 mm", C: "5.00 mm y 5.02 mm", D: "4.98 mm y 5.00 mm" },
+                correcta: "A",
+                explicacion: "Despejando: d - 5 = 0.02 da d = 5.02; d - 5 = -0.02 da d = 4.98. Ambos valores cumplen la tolerancia."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Halle las raíces verdaderas de la ecuación propuesta: |x² - 4| = 0.",
+                opciones: { A: "{2, -2}", B: "{2}", C: "{4, -4}", D: "{0}" },
+                correcta: "A",
+                explicacion: "Esto implica x² - 4 = 0, lo cual se factoriza como (x-2)(x+2) = 0, obteniendo las raíces reales 2 y -2."
+            },
+            {
+                categoria: "Ecuaciones con Valor Absoluto",
+                pregunta: "Determine la solución de la ecuación: |4x + 8| = 12.",
+                opciones: { A: "x = 1 y x = -5", B: "x = 1 y x = 5", C: "x = -1 y x = -5", D: "x = 0 y x = 3" },
+                correcta: "A",
+                explicacion: "Caso 1: 4x + 8 = 12 → 4x = 4 → x = 1. Caso 2: 4x + 8 = -12 → 4x = -20 → x = -5."
+            },
+
+            // CATEGORÍA: Inecuaciones con Valor Absoluto (15-21)
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Resuelve la inecuación lineal con valor absoluto: |x - 3| ≤ 5.",
+                opciones: { A: "[-2, 8]", B: "(-2, 8)", C: "(-∞, -2] ∪ [8, +∞)", D: "[-8, 2]" },
+                correcta: "A",
+                explicacion: "Por propiedad, |u| ≤ a significa -a ≤ u ≤ a. Entonces -5 ≤ x - 3 ≤ 5, sumando 3 obtenemos -2 ≤ x ≤ 8."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Determina el conjunto de valores que satisfacen la condición: |2x + 1| > 7.",
+                opciones: { A: "(-∞, -4) ∪ (3, +∞)", B: "[-4, 3]", C: "(-4, 3)", D: "(-∞, -3) ∪ (4, +∞)" },
+                correcta: "A",
+                explicacion: "Equivale a dos tramos disjuntos: 2x + 1 > 7 (x > 3) o 2x + 1 < -7 (2x < -8 → x < -4)."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Para mantener estable un reactor químico, el rango térmico ideal se expresa como |T - 100| < 15. ¿Cuál es el intervalo de operación?",
+                opciones: { A: "(85, 115)", B: "[85, 115]", C: "(-∞, 85) ∪ (115, +∞)", D: "(90, 110)" },
+                correcta: "A",
+                explicacion: "Desglosando la inecuación: -15 < T - 100 < 15. Sumando 100 en cada lado, el resultado es 85 < T < 115."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Halle el conjunto solución formal de la inecuación: |3x - 6| ≥ 0.",
+                opciones: { A: "Todos los números reales (ℝ)", B: "ℝ - {2}", C: "[2, +∞)", D: "No tiene solución" },
+                correcta: "A",
+                explicacion: "El valor absoluto siempre arroja un valor mayor o igual a cero para cualquier número real. Por lo tanto, la solución es universal."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Resuelve la inecuación y selecciona el intervalo correspondiente: |5 - x| < 2.",
+                opciones: { A: "(3, 7)", B: "[-3, 7]", C: "(3, 5)", D: "(-∞, 3) ∪ (7, +∞)" },
+                correcta: "A",
+                explicacion: "Se traduce como -2 < 5 - x < 2. Restando 5 queda -7 < -x < -3. Multiplicando por -1 invierte el orden: 3 < x < 7."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Encuentra la solución analítica para la siguiente condición: |x + 4| > -2.",
+                opciones: { A: "Todos los números reales (ℝ)", B: "Vacío (Ø)", C: "(-2, +∞)", D: "(-∞, -6)" },
+                correcta: "A",
+                explicacion: "Un valor absoluto siempre es mayor o igual a 0, por lo tanto siempre será estrictamente mayor que cualquier número negativo."
+            },
+            {
+                categoria: "Inecuaciones con Valor Absoluto",
+                pregunta: "Resuelve la expresión: |2x - 4| ≤ 6.",
+                opciones: { A: "[-1, 5]", B: "(-1, 5)", C: "[-5, 1]", D: "(-∞, -1] ∪ [5, +∞)" },
+                correcta: "A",
+                explicacion: "Desarrollando: -6 ≤ 2x - 4 ≤ 6. Añadiendo 4 queda -2 ≤ 2x ≤ 10. Dividiendo por 2 se obtiene -1 ≤ x ≤ 5."
+            },
+
+            // CATEGORÍA: Funciones (22-28)
+            {
+                categoria: "Funciones",
+                pregunta: "Dada la función cuadrática f(x) = x² - 4x + 3, calcule las coordenadas de su vértice V.",
+                opciones: { A: "V(2, -1)", B: "V(-2, 1)", C: "V(2, 3)", D: "V(4, 3)" },
+                correcta: "A",
+                explicacion: "La coordenada x del vértice es -b/(2a) = 4/2 = 2. Evaluando f(2) = 2² - 4(2) + 3 = 4 - 8 + 3 = -1."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "Determine los puntos de corte con el eje X de la función f(x) = x² - 9.",
+                opciones: { A: "(3, 0) y (-3, 0)", B: "(0, 3) y (0, -3)", C: "(9, 0) y (-9, 0)", D: "No corta al eje X" },
+                correcta: "A",
+                explicacion: "Para hallar cortes con el eje X hacemos f(x) = 0. Entonces x² - 9 = 0 implica x = 3 y x = -3."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "Determine el dominio real de la función con raíz irracional f(x) = √(x - 5).",
+                opciones: { A: "[5, +∞)", B: "(5, +∞)", C: "(-∞, 5]", D: "ℝ - {5}" },
+                correcta: "A",
+                explicacion: "El radicando de una raíz cuadrada en números reales debe ser mayor o igual a cero: x - 5 ≥ 0, lo que da x ≥ 5."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "¿Cuál es el dominio de la función racional explícita g(x) = (2x + 1) / (x² - 4)?",
+                opciones: { A: "ℝ - {2, -2}", B: "ℝ - {4}", C: "[2, +∞)", D: "(-2, 2)" },
+                correcta: "A",
+                explicacion: "El denominador de una fracción no puede ser cero. x² - 4 = 0 ocurre en x = 2 y x = -2. Se excluyen del dominio real."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "La trayectoria de un proyectil simulado es h(t) = -5t² + 20t. ¿Cuál es la altura máxima alcanzada?",
+                opciones: { A: "20 metros", B: "10 metros", C: "40 metros", D: "15 metros" },
+                correcta: "A",
+                explicacion: "El tiempo del vértice es t = -20 / (2*(-5)) = 2 segundos. Reemplazando h(2) = -5(4) + 20(2) = -20 + 40 = 20 metros."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "Halle el punto de corte con el eje Y de la función f(x) = 3x² - 5x + 7.",
+                opciones: { A: "(0, 7)", B: "(7, 0)", C: "(0, -5)", D: "(3, 0)" },
+                correcta: "A",
+                explicacion: "El corte con el eje Y se calcula evaluando la función en x = 0. f(0) = 3(0)² - 5(0) + 7 = 7."
+            },
+            {
+                categoria: "Funciones",
+                pregunta: "Determine el rango de la función f(x) = x² + 2.",
+                opciones: { A: "[2, +∞)", B: "ℝ", C: "(2, +∞)", D: "[0, +∞)" },
+                correcta: "A",
+                explicacion: "Como x² ≥ 0 para cualquier número real, al sumar 2, el menor valor posible de la función es 2, extendiéndose al infinito."
+            },
+
+            // CATEGORÍA: Identidades Trigonométricas (29-35)
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "Al simplificar la expresión fundamental (sin²θ + cos²θ) / sec²θ obtenemos:",
+                opciones: { A: "cos²θ", B: "sin²θ", C: "tan²θ", D: "1" },
+                correcta: "A",
+                explicacion: "Por la identidad pitagórica, el numerador es 1. Sabiendo que 1 / sec²θ equivale al coseno cuadrado, la respuesta es cos²θ."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "La expresión trigonométrica simplificada de (tan x · cos x) equivale a:",
+                opciones: { A: "sin x", B: "sec x", C: "csc x", D: "cot x" },
+                correcta: "A",
+                explicacion: "Sustituyendo tan x por su definición (sin x / cos x), los cosenos se cancelan mutuamente, dejando únicamente sin x."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "Demuestre la igualdad implícita reduciendo la expresión: csc x - sin x.",
+                opciones: { A: "cot x · cos x", B: "tan x · sin x", C: "sec x · cos x", D: "1" },
+                correcta: "A",
+                explicacion: "csc x = 1/sin x. Operando la resta: (1 - sin²x) / sin x = cos²x / sin x = (cos x / sin x) * cos x = cot x · cos x."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "¿A qué es equivalente la expresión trigonométrica tan²x + 1?",
+                opciones: { A: "sec²x", B: "csc²x", C: "cos²x", D: "cot²x" },
+                correcta: "A",
+                explicacion: "Esta es una de las identidades pitagóricas secundarias derivadas directamente al dividir sin²x + cos²x = 1 por cos²x."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "En una antena de telecomunicaciones, la señal modelada óptima requiere simplificar: sin(2x) / (2 sin x). ¿Cuál es su forma reducida?",
+                opciones: { A: "cos x", B: "sin x", C: "2 cos x", D: "tan x" },
+                correcta: "A",
+                explicacion: "Aplicando la identidad del ángulo doble, sin(2x) = 2 sin x cos x. Al dividirlo entre 2 sin x, nos queda simplemente cos x."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "Simplifique la estructura: (1 - cos²x) · csc²x.",
+                opciones: { A: "1", B: "sin²x", B: "cos²x", D: "tan²x" },
+                correcta: "A",
+                explicacion: "Sabiendo que 1 - cos²x = sin²x, y que csc²x = 1 / sin²x, su producto recíproco da exactamente la unidad (1)."
+            },
+            {
+                categoria: "Identidades Trigonométricas",
+                pregunta: "Reduzca la siguiente fracción: cos x / (cot x).",
+                opciones: { A: "sin x", B: "tan x", C: "sec x", D: "csc x" },
+                correcta: "A",
+                explicacion: "Como cot x = cos x / sin x, la división se convierte en cos x * (sin x / cos x), simplificando el coseno para dar sin x."
+            },
+
+            // CATEGORÍA: Vectores (36-42)
+            {
+                categoria: "Vectores",
+                pregunta: "Dados los vectores bidimensionales u = (3, -2) y v = (1, 4), calcule el vector suma u + v.",
+                opciones: { A: "(4, 2)", B: "(2, -6)", C: "(4, -6)", D: "(3, -8)" },
+                correcta: "A",
+                explicacion: "Se suman componente a componente: (3 + 1, -2 + 4) = (4, 2)."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "Calcule el producto escalar (punto) de los vectores u = (2, 5) y v = (-3, 4).",
+                opciones: { A: "14", B: "-6", C: "20", D: "26" },
+                correcta: "A",
+                explicacion: "El producto escalar es u·v = (2 * -3) + (5 * 4) = -6 + 20 = 14."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "Si tenemos un vector de fuerza F1 = (5, 7) y se le resta F2 = (2, 3), ¿cuál es el vector resultante de la resta F1 - F2?",
+                opciones: { A: "(3, 4)", B: "(7, 10)", C: "(-3, -4)", D: "(3, 10)" },
+                correcta: "A",
+                explicacion: "Restando componentes homólogas: (5 - 2, 7 - 3) de donde resulta el vector (3, 4)."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "Determine la magnitud (módulo) del vector en el plano a = (6, 8).",
+                opciones: { A: "10", B: "14", C: "48", D: "100" },
+                correcta: "A",
+                explicacion: "Se aplica el teorema de Pitágoras: |a| = √(6² + 8²) = √(36 + 64) = √100 = 10."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "Dos remolcadores aplican fuerzas sobre un barco representadas por u = (4, i) y v = (2, 6). Si su producto escalar es 20, halle el valor de i.",
+                opciones: { A: "2", B: "3", C: "4", D: "1" },
+                correcta: "A",
+                explicacion: "u · v = 4*2 + i*6 = 20 → 8 + 6i = 20 → 6i = 12 → i = 2."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "Si el vector v = (-1, 3), determine el vector escalado 3v.",
+                opciones: { A: "(-3, 9)", B: "(3, 9)", C: "(-3, 3)", D: "(2, 6)" },
+                correcta: "A",
+                explicacion: "Multiplicar un escalar por un vector implica multiplicar cada uno de sus componentes: 3*(-1) = -3 y 3*(3) = 9."
+            },
+            {
+                categoria: "Vectores",
+                pregunta: "¿Qué propiedad cumplen dos vectores no nulos cuyo producto escalar es igual a cero?",
+                opciones: { A: "Son perpendiculares (ortogonales)", B: "Son paralelos", C: "Tienen la misma longitud", D: "Son vectores opuestos" },
+                correcta: "A",
+                explicacion: "Dado que u · v = |u||v|cos(θ), si el producto escalar es 0, cos(θ) = 0, lo que significa que forman un ángulo recto de 90°."
+            },
+
+            // CATEGORÍA: Límites de funciones (43-50)
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Calcule el límite cuando x tiende a 3 de la función racional: lim (x² - 9) / (x - 3).",
+                opciones: { A: "6", B: "3", C: "0", D: "No existe" },
+                correcta: "A",
+                explicacion: "Factorizando el numerador como diferencia de cuadrados: (x-3)(x+3)/(x-3) = x+3. Evaluando x=3, resulta 3+3=6."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Halle el límite al infinito de la siguiente expresión exponencial: lim (5x² + 2) / (3x² - x) cuando x → +∞.",
+                opciones: { A: "5/3", B: "0", C: "+∞", D: "2" },
+                correcta: "A",
+                explicacion: "Al tender al infinito, domina el grado mayor. Dividiendo coeficientes de los términos principales (x²), queda 5/3."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Calcule el valor numérico del límite directo: lim (2x + 4) cuando x → 5.",
+                opciones: { A: "14", B: "10", C: "12", D: "16" },
+                correcta: "A",
+                explicacion: "Al ser una función polinómica continua, evaluamos directamente el valor: 2(5) + 4 = 10 + 4 = 14."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Determine el comportamiento del límite: lim (1 / x) cuando x → 0 por la derecha (+).",
+                opciones: { A: "+∞", B: "-∞", C: "0", D: "1" },
+                correcta: "A",
+                explicacion: "A medida que x se acerca a 0 con valores positivos muy pequeños, la fracción crece indefinidamente hacia el infinito positivo."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "En un laboratorio de bacteriología, la población sigue el modelo P(t) = 400 / (1 + 3e⁻ᵗ). ¿Cuál es el límite máximo de población cuando t → +∞?",
+                opciones: { A: "400", B: "100", C: "0", D: "200" },
+                correcta: "A",
+                explicacion: "Cuando t tiende a infinito, e⁻ᵗ tiende a 0. Así, el modelo se reduce a 400 / (1 + 0) = 400 bacterias."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Calcule el límite indeterminado: lim (x² - x) / x cuando x → 0.",
+                opciones: { A: "-1", B: "0", C: "1", D: "No existe" },
+                correcta: "A",
+                explicacion: "Factorizando x en el numerador: x(x - 1) / x = x - 1. Evaluando cuando x se aproxima a 0, obtenemos 0 - 1 = -1."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Calcule el límite racional al infinito: lim (3x + 1) / (2x² - 5) cuando x → +∞.",
+                opciones: { A: "0", B: "3/2", C: "+∞", D: "-1/5" },
+                correcta: "A",
+                explicacion: "Dado que el grado del denominador (2) es estrictamente mayor que el grado del numerador (1), la fracción se desvanece hacia 0."
+            },
+            {
+                categoria: "Límites de Funciones",
+                pregunta: "Encuentre el resultado del límite: lim (x² - 4) / (x - 2) cuando x → 2.",
+                opciones: { A: "4", B: "2", C: "0", D: "Indefinido" },
+                correcta: "A",
+                explicacion: "Se simplifica la indeterminación 0/0 factorizando: (x-2)(x+2)/(x-2) = x+2. Al evaluar x = 2, obtenemos 2 + 2 = 4."
+            }
+        ];
+
+        // Estado del Juego
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lifelinesUsed = {
+            fiftyFifty: false,
+            removeOne: false,
+            phone: false,
+            publicHelp: false
+        };
+        let currentQuestionAnswered = false;
+
+        // Iniciar el Juego
+        function startGame() {
+            document.getElementById("start-screen").classList.remove("active");
+            document.getElementById("game-screen").classList.add("active");
+            currentQuestionIndex = 0;
+            score = 0;
+            currentQuestionAnswered = false;
+            
+            // Resetear comodines en UI
+            lifelinesUsed = { fiftyFifty: false, removeOne: false, phone: false, publicHelp: false };
+            const ids = ["ll-5050", "ll-remove", "ll-phone", "ll-public"];
+            ids.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            });
+
+            updateHUD();
+            loadQuestion();
+        }
+
+        // Cargar datos de la pregunta actual
+        function loadQuestion() {
+            currentQuestionAnswered = false;
+            document.getElementById("feedback-panel").classList.remove("active");
+            document.getElementById("lifeline-display").classList.remove("active");
+            
+            const qData = questions[currentQuestionIndex];
+            
+            // Actualizar textos básicos
+            document.getElementById("current-q-num").innerText = currentQuestionIndex + 1;
+            document.getElementById("category-badge").innerText = qData.categoria;
+            document.getElementById("question-box").innerText = qData.pregunta;
+            
+            // Renderizar opciones y resetear clases de estilo
+            const optionsKeys = ["A", "B", "C", "D"];
+            optionsKeys.forEach(key => {
+                const optBtn = document.getElementById(`opt-${key}`);
+                optBtn.className = "option-btn"; // Resetear clases
+                optBtn.disabled = false;
+                document.getElementById(`text-${key}`).innerText = qData.opciones[key];
+            });
+
+            // Dar foco a la primera opción para accesibilidad por teclado
+            document.getElementById("opt-A").focus();
+        }
+
+        function updateHUD() {
+            document.getElementById("score-val").innerText = score;
+        }
+
+        // Selección de Respuesta
+        function selectOption(letter) {
+            if (currentQuestionAnswered) return;
+            currentQuestionAnswered = true;
+
+            const qData = questions[currentQuestionIndex];
+            const isCorrect = (letter === qData.correcta);
+
+            // Deshabilitar todas las opciones
+            const optionsKeys = ["A", "B", "C", "D"];
+            optionsKeys.forEach(key => {
+                document.getElementById(`opt-${key}`).disabled = true;
+            });
+
+            // Estilizar respuestas según resultado
+            const selectedBtn = document.getElementById(`opt-${letter}`);
+            const correctBtn = document.getElementById(`opt-${qData.correcta}`);
+
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+                updateHUD();
+                showFeedback(true, "¡CORRECTO! ¡Formidable deducción matemática!", qData.explicacion);
+            } else {
+                selectedBtn.classList.add("incorrect");
+                correctBtn.classList.add("correct");
+                showFeedback(false, "¡INCORRECTO! El estudio es el camino a la certeza.", qData.explicacion);
+            }
+        }
+
+        // Mostrar Panel de Retroalimentación
+        function showFeedback(isSuccess, title, expText) {
+            const panel = document.getElementById("feedback-panel");
+            const titleEl = document.getElementById("feedback-title");
+            const expEl = document.getElementById("explanation-box");
+
+            titleEl.innerText = title;
+            titleEl.className = isSuccess ? "feedback-title success" : "feedback-title fail";
+            expEl.innerText = expText;
+
+            panel.classList.add("active");
+            
+            // Foco al botón siguiente para fluidez del teclado
+            setTimeout(() => {
+                document.getElementById("btn-next").focus();
+            }, 100);
+        }
+
+        // Avanzar flujo de juego
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        // COMODÍN: 50/50
+        function use5050() {
+            if (currentQuestionAnswered || lifelinesUsed.fiftyFifty) return;
+            lifelinesUsed.fiftyFifty = true;
+            disableLifelineVisual("ll-5050");
+
+            const qData = questions[currentQuestionIndex];
+            const correct = qData.correcta;
+            
+            // Filtrar opciones incorrectas
+            let incorrects = ["A", "B", "C", "D"].filter(key => key !== correct);
+            
+            // Seleccionar aleatoriamente dos para ocultar
+            incorrects.sort(() => Math.random() - 0.5);
+            
+            // Ocultar exactamente dos
+            document.getElementById(`opt-${incorrects[0]}`).classList.add("hidden-option");
+            document.getElementById(`opt-${incorrects[1]}`).classList.add("hidden-option");
+
+            logLifelineAction("Comodín 50/50 aplicado: ¡Dos opciones incorrectas eliminadas del mapa!");
+        }
+
+        // COMODÍN: Eliminar una
+        function useRemoveOne() {
+            if (currentQuestionAnswered || lifelinesUsed.removeOne) return;
+            lifelinesUsed.removeOne = true;
+            disableLifelineVisual("ll-remove");
+
+            const qData = questions[currentQuestionIndex];
+            const correct = qData.correcta;
+
+            // Encontrar opciones que estén visibles actualmente y no sean correctas
+            let incorrects = ["A", "B", "C", "D"].filter(key => {
+                const btn = document.getElementById(`opt-${key}`);
+                return key !== correct && !btn.classList.contains("hidden-option");
+            });
+
+            if (incorrects.length > 0) {
+                const toHide = incorrects[Math.floor(Math.random() * incorrects.length)];
+                document.getElementById(`opt-${toHide}`).classList.add("hidden-option");
+                logLifelineAction("Comodín Eliminar Una: Se ha descartado una alternativa incorrecta.");
+            }
+        }
+
+        // COMODÍN: Llamada Telefónica
+        function usePhone() {
+            if (currentQuestionAnswered || lifelinesUsed.phone) return;
+            lifelinesUsed.phone = true;
+            disableLifelineVisual("ll-phone");
+
+            const qData = questions[currentQuestionIndex];
+            const correct = qData.correcta;
+
+            // Simular probabilidad: Amigo da la correcta el 85% de las veces
+            const rand = Math.random();
+            let suggested = correct;
+            if (rand > 0.85) {
+                let incorrects = ["A", "B", "C", "D"].filter(k => k !== correct);
+                suggested = incorrects[Math.floor(Math.random() * incorrects.length)];
+            }
+
+            const frasesAmigo = [
+                `"Hola, estoy un 90% seguro de que la opción correcta es la ${suggested}. ¡Confía en las propiedades analíticas!"`,
+                `"¡Qué tal! Revisando mis apuntes mentales de álgebra, te aseguro que la respuesta es la ${suggested}."`,
+                `"Rápido, el tiempo vuela. La solución lógica apunta directamente a la opción ${suggested}."`
+            ];
+            const mensaje = frasesAmigo[Math.floor(Math.random() * frasesAmigo.length)];
+
+            logLifelineAction(`📞 Conversando con tu asesor académico: <br><i>${mensaje}</i>`);
+        }
+
+        // COMODÍN: Ayuda del Público
+        function usePublic() {
+            if (currentQuestionAnswered || lifelinesUsed.publicHelp) return;
+            lifelinesUsed.publicHelp = true;
+            disableLifelineVisual("ll-public");
+
+            const qData = questions[currentQuestionIndex];
+            const correct = qData.correcta;
+
+            // Generar porcentajes altamente sesgados al correcto
+            let remaining = 100;
+            let votes = { A: 0, B: 0, C: 0, D: 0 };
+            
+            votes[correct] = Math.floor(Math.random() * 20) + 65; // 65% - 84% para la correcta
+            remaining -= votes[correct];
+
+            let keys = ["A", "B", "C", "D"].filter(k => k !== correct);
+            
+            // Distribuir el residuo entre las incorrectas
+            let v1 = Math.floor(Math.random() * remaining);
+            votes[keys[0]] = v1;
+            remaining -= v1;
+
+            let v2 = Math.floor(Math.random() * remaining);
+            votes[keys[1]] = v2;
+            remaining -= v2;
+
+            votes[keys[2]] = remaining;
+
+            // Estructurar la mini gráfica interactiva en HTML
+            let htmlPoll = `<h4>📊 Gráfica de Opinión del Público:</h4><div class="poll-container">`;
+            ["A", "B", "C", "D"].forEach(k => {
+                htmlPoll += `
+                    <div class="poll-bar-wrapper">
+                        <div class="poll-label"><span>Opción ${k}</span><strong>${votes[k]}%</strong></div>
+                        <div class="poll-bar"><div class="poll-fill" style="width: ${votes[k]}%"></div></div>
+                    </div>
+                `;
+            });
+            htmlPoll += `</div>`;
+
+            logLifelineAction(htmlPoll);
+        }
+
+        // Funciones auxiliares de comodines
+        function disableLifelineVisual(id) {
+            const btn = document.getElementById(id);
+            btn.disabled = true;
+            btn.style.opacity = "0.3";
+            btn.style.pointerEvents = "none";
+        }
+
+        function logLifelineAction(content) {
+            const display = document.getElementById("lifeline-display");
+            display.innerHTML = content;
+            display.classList.add("active");
+        }
+
+        // Finalización del juego
+        function endGame() {
+            document.getElementById("game-screen").classList.remove("active");
+            document.getElementById("end-screen").classList.add("active");
+            document.getElementById("final-score-val").innerText = score;
+
+            let comment = "";
+            if (score === 50) comment = "¡Puntaje perfecto! Eres una eminencia matemática absoluta. ¡La universidad te espera!";
+            else if (score >= 40) comment = "¡Espectacular nivel de preparación! Superas con creces los estándares académicos exigidos.";
+            else if (score >= 25) comment = "Buen desempeño general, pero te recomendamos reforzar las identidades trigonométricas y límites.";
+            else comment = "¡No te desanimes! Sigue repasando los teoremas base y vuelve a intentarlo para afianzar tus conocimientos.";
+
+            document.getElementById("performance-comment").innerText = comment;
+        }
+
+        // Reinicio completo del bucle del juego
+        function restartGame() {
+            document.getElementById("end-screen").classList.remove("active");
+            document.getElementById("start-screen").classList.add("active");
+        }
+    </script>
+</body>
+</html>
